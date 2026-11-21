@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Biblioteca</title>
+<link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+<header>
+  <h1>Bienvenido</h1>
+</header>
+<div class="bar"></div>
+
+<div id="stage" aria-label="Galería 3D">
+  {% for b in books %}
+  <div class="card"
+       data-title="{{ b }}" 
+       data-sub="Imagen de ejemplo"
+       style="background-image:url('{{ url_for('cover', i=loop.index0) }}')"></div>
+  {% endfor %}
+</div>
+
+<footer>
+  <h2 id="title"></h2>
+  <p id="sub"></p>
+  <div class="dots" id="dots"></div>
+  <div class="hint">← → , rueda del ratón o arrastra para navegar</div>
+</footer>
+
+<script src="{{ url_for('static', filename='js/carousel.js') }}"></script>
+</body>
+</html>
