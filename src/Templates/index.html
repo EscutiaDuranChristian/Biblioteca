@@ -1,24 +1,33 @@
 <!DOCTYPE html>
 <html lang="es">
-<head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>Biblioteca</title>
-<link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
-</head>
-<body>
-<header>
-  <h1>Bienvenido</h1>
-</header>
-<div class="bar"></div>
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+    <title>Biblioteca</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+  </head>
+  <body>
+    <header>
+      <div style="display:flex; gap:8px; right:0; position: absolute; ">
+        <a class="btn" href="/addBook">+ Agregar libros</a>
+      </div>
+      <h1>Bienvenido</h1>
+    </header>
 
-<div id="stage" aria-label="Galería 3D">
-  {% for b in books %}
-  <div class="card"
-       data-title="{{ b }}" 
-       data-sub="Imagen de ejemplo"
-       style="background-image:url('{{ url_for('cover', i=loop.index0) }}')"></div>
-  {% endfor %}
+    <div class="bar"></div>
+    
+    <div id="stage" aria-label="Galería 3D">
+  {% if books %} 
+    {% for b in books %}
+    <div class="card"
+      data-title="{{ b }}" 
+      data-sub="Imagen de ejemplo"
+      style="background-image:url('{{ url_for('cover', i=loop.index0) }}')">
+    </div>
+    {% endfor %}
+  {% else %}
+    No hay libros registrados.
+  {% endif %}
 </div>
 
 <footer>
