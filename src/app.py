@@ -20,13 +20,26 @@ PALETTE = [
     ("#263238", "#90a4ae"), ("#880e4f", "#f48fb1"),
 ]
 
-params = ("%python%",)
-
 @app.route("/")
 def index():
-    BOOKS = obtener_libros()
+    q = request.args.get("q", "")
+    if q:
+        BOOKS = buscar_libros(q)
+    else:
+        BOOKS = obtener_libros()
     indices = [randint(0, len(PALETTE)-1) for _ in BOOKS]
-    return render_template("index.html", books=BOOKS, indices=indices)
+    return render_template("index.html", books=BOOKS, indices=indices, q=q)
+
+@app.route("/", methods=['POST'])
+def turn_back():
+    curr = request.form.get('indx', 0)
+    q = request.form.get('q', '')
+    if q:
+        BOOKS = buscar_libros(q)
+    else:
+        BOOKS = obtener_libros()
+    indices = [randint(0, len(PALETTE)-1) for _ in BOOKS]
+    return render_template("index.html", books=BOOKS, indices=indices, curr=curr, q=q)
 
 @app.route("/addBook")
 def addBook():
@@ -43,17 +56,32 @@ def guardar_libro():
     )
     return redirect("/")
 
+@app.route("/libro/info", methods=['POST'])
+def libro_info():
+    id = request.form['ID']
+    curr = request.form.get('curr', 0)
+    q = request.form.get('query', '')
+    libro = consultar("SELECT * FROM LIBROS WHERE id_libro = %s",(id,))
+    return render_template("libro_info.html", libro=libro[0], ant=curr, query=q)
+
 @app.route("/cover/<int:i>.svg")
 def cover(i):
-    BOOKS = obtener_libros()
+    libro = consultar(
+        "SELECT titulo FROM libros WHERE id_libro = %s",
+        (i,)
+    )[0]
+
+    titulo = libro["titulo"]
+
     c1, c2 = PALETTE[i % len(PALETTE)]
+
     svg = render_template(
         "cover.svg",
-        lines=textwrap.wrap(BOOKS
-    [i % len(BOOKS
-    )], 11),
-        c1=c1, c2=c2,
+        lines=textwrap.wrap(titulo, 11),
+        c1=c1,
+        c2=c2,
     )
+
     return Response(svg, mimetype="image/svg+xml")
 
 def consultar(sql, params=None):
@@ -72,10 +100,23 @@ def ejecutar(sql, params=None):
     cursor.close()
 
 def obtener_libros():
-    return [fila["titulo"]
+    return [(fila["titulo"], fila["id_libro"])
             for fila in consultar(
-                "SELECT titulo FROM libros"
+                "SELECT titulo, id_libro FROM libros"
             )]
+
+def buscar_libros(q):
+    return [(fila["titulo"], fila["id_libro"])
+                for fila in consultar(
+                    """
+                    SELECT *
+                    FROM libros
+                    WHERE titulo LIKE %s
+                    OR autor LIKE %s
+                    """, 
+                (f"%{q}%", f"%{q}%")
+                )
+            ]
 
 if __name__ == '__main__':
     app.run(debug = True)

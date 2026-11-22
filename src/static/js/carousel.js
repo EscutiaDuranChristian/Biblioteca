@@ -1,10 +1,12 @@
 (function () {
   const stage = document.getElementById("stage");
   const dots = document.getElementById("dots");
-  const title = document.getElementById("title");
-  const sub = document.getElementById("sub");
-  let cur = 0, moved = false;
+  const indx = document.getElementById("bar")
+  // const title = document.getElementById("title");
+  // const sub = document.getElementById("sub");
 
+  let cur = 0, moved = false;
+  
   const cards = () => [...stage.children];
 
   function layout() {
@@ -26,8 +28,8 @@
       c.classList.toggle("sel", o === 0);
       dots.children[i]?.classList.toggle("on", o === 0);
     });
-    title.textContent = list[cur].dataset.title;
-    sub.textContent = `${cur + 1} de ${list.length} · ${list[cur].dataset.sub}`;
+    // title.textContent = list[cur].dataset.title;
+    // sub.textContent = `${cur + 1} de ${list.length} · ${list[cur].dataset.sub}`;
   }
 
   function go(i) {
@@ -55,6 +57,14 @@
   document.addEventListener("keydown", e => {
     if (e.key === "ArrowRight") go(cur + 1);
     if (e.key === "ArrowLeft") go(cur - 1);
+    if (e.key === "Enter") {
+      const libroSeleccionado = cards()[cur];
+      const id = libroSeleccionado.dataset.id;
+      document.getElementById("bookId").value = id;
+      document.getElementById("bookCurr").value = cur;
+      document.getElementById("bookQuery").value = document.getElementById("q").value;
+      document.getElementById("bookForm").submit();
+    }
   });
   let lastWheel = 0;
   stage.addEventListener("wheel", e => {
@@ -83,25 +93,5 @@
   // Inicializar primero, antes de cualquier listener opcional
   buildDots();
   layout();
-
-  // Imágenes del usuario (solo vista previa local)
-  const fileInput = document.getElementById("file");
-  if (fileInput) {
-    fileInput.addEventListener("change", e => {
-      const files = [...e.target.files];
-      if (!files.length) return;
-      stage.innerHTML = "";
-      files.forEach(f => {
-        const d = document.createElement("div");
-        d.className = "card";
-        d.dataset.title = f.name.replace(/\.[^.]+$/, "");
-        d.dataset.sub = "Tu imagen";
-        d.style.backgroundImage = `url("${URL.createObjectURL(f)}")`;
-        stage.appendChild(d);
-      });
-      cur = 0;
-      buildDots();
-      layout();
-    });
-  }
+  go(Number(indx.dataset.indx))
 })();
